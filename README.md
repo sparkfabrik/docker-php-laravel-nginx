@@ -1,4 +1,4 @@
-# docker-php-nginx
+# docker-php-laravel-nginx
 
 NGINX Docker container for Laravel-based projects
 
