@@ -1,7 +1,6 @@
 #!/bin/sh
 export PHP_HOST=${PHP_HOST:-php}
 export PHP_PORT=${PHP_PORT:-9000}
-export NGINX_DEFAULT_SERVER_PORT=${NGINX_DEFAULT_SERVER_PORT:-80}
 export NGINX_PHP_READ_TIMEOUT=${NGINX_PHP_READ_TIMEOUT:-900}
 export NGINX_DEFAULT_SERVER_NAME=${NGINX_DEFAULT_SERVER_NAME:-laravel}
 export NGINX_DEFAULT_ROOT=${NGINX_DEFAULT_ROOT:-/var/www}
@@ -13,10 +12,12 @@ export NGINX_OSB_RESOLVER=${NGINX_OSB_RESOLVER:-8.8.8.8}
 export PUBLIC_FILES_PATH=${PUBLIC_FILES_PATH:-storage/app/public}
 export NGINX_CACHE_CONTROL_HEADER=${NGINX_CACHE_CONTROL_HEADER:-public,max-age=3600}
 
-export ROOTLESS_INSTANCE=${ROOTLESS_INSTANCE:-0}
-if [ ${ROOTLESS_INSTANCE} -eq 1 ]; then
+# If you use the rootless image the user directive is not needed
+if [ $(id -u) -ne 0 ]; then
   sed -i '/^user /d' /etc/nginx/nginx.conf
-  NGINX_DEFAULT_SERVER_PORT=8080
+  export NGINX_DEFAULT_SERVER_PORT=${NGINX_DEFAULT_SERVER_PORT:-8080}
+else
+  export NGINX_DEFAULT_SERVER_PORT=${NGINX_DEFAULT_SERVER_PORT:-80}
 fi
 
 if [ $NGINX_HTTPSREDIRECT == 1 ]; then

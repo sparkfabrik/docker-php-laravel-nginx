@@ -1,0 +1,27 @@
+name: Docker
+
+on: push
+
+env:
+  IMAGE_NAME: docker-php-laravel-nginx
+  FOLDER_1_13_6: 1.13.6-alpine
+  TAG_1_13_6: 1.13.6-alpine
+  TAG_1_13_6_RL: 1.13.6-alpine-rootless
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build images
+        run: |
+          docker build ./$FOLDER_1_13_6 --file $FOLDER_1_13_6/Dockerfile --tag $IMAGE_NAME:$TAG_1_13_6 --build-arg user=root
+          docker build ./$FOLDER_1_13_6 --file $FOLDER_1_13_6/Dockerfile --tag $IMAGE_NAME:$TAG_1_13_6_RL --build-arg user=1001
+
+      - name: Test images
+        run: |
+          ./tests/image_verify.sh --source tests/expectations --env-file tests/envfile --http-port 80 --user root $IMAGE_NAME:$TAG_1_13_6
+          ./tests/image_verify.sh --source tests/overrides/expectations --env-file tests/overrides/envfile --http-port 4321 --http-host nginx_default_server_name --user root $IMAGE_NAME:$TAG_1_13_6
+          ./tests/image_verify.sh --source tests/expectations --env-file tests/envfile --http-port 8080 --user "unknown uid 1001" $IMAGE_NAME:$TAG_1_13_6_RL
+          ./tests/image_verify.sh --source tests/overrides/expectations --env-file tests/overrides/envfile --http-port 4321 --http-host nginx_default_server_name --user "unknown uid 1001" $IMAGE_NAME:$TAG_1_13_6_RL
