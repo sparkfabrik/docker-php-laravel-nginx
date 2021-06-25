@@ -1,0 +1,27 @@
+FROM nginx:1.21.0-alpine
+
+# Pass inexistent UUID (e.g.: 1001) to enhance the container security
+ARG user=root
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY templates /templates
+
+RUN chmod +x /docker-entrypoint.sh && \
+    chmod 775 /etc/nginx && \
+    chmod 775 /etc/nginx/conf.d && \
+    mkdir -p /etc/nginx/conf.d/fragments && \
+    chmod 775 /etc/nginx/conf.d/fragments && \
+    chgrp root /var/cache/nginx && \
+    chmod 775 /var/cache/nginx && \
+    chmod 775 /var/log/nginx && \
+    mkdir -p /var/run/nginx && \
+    chmod 775 /var/run/nginx && \
+    sed -i 's|/var/run/nginx.pid|/var/run/nginx/nginx.pid|g' /etc/nginx/nginx.conf && \
+    chmod 775 /templates && \
+    chmod 664 /etc/nginx/fastcgi.conf && \
+    chmod 664 /etc/nginx/conf.d/default.conf
+
+# Go to target user
+USER $user
+
+ENTRYPOINT [ "/docker-entrypoint.sh" ]

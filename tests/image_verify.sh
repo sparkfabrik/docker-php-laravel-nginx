@@ -68,7 +68,7 @@ EOM
   while read -r line || [ -n "$line" ]; do
     if [ "${line}" = "$(echo "${line}" | tr -d '#')" ]; then
       CUR_TEST_VAR=$(echo "${line}" | awk '{split($0,a,"="); print a[1]}')
-      CUR_TEST_VAL=$(echo "${line}" | awk '{gsub(/"/,""); split($0,a,"="); print a[2]}')
+      CUR_TEST_VAL=$(echo "${line}" | envsubst | awk '{gsub(/"/,""); split($0,a,"="); print a[2]}')
 
       PRINT_VAR=""
       if [ "${CUR_TEST_VAR}" = "HTTP_STATUS" ]; then
@@ -373,7 +373,7 @@ if [ -f "${SOURCE_FILE}" ]; then
   while read -r line || [ -n "$line" ]; do
     if [ "${line}" = "$(echo "${line}" | tr -d '#')" ]; then
       CUR_TEST_VAR=$(echo "${line}" | awk '{split($0,a,"="); print a[1]}')
-      CUR_TEST_VAL=$(echo "${line}" | awk '{gsub(/"/,""); split($0,a,"="); print a[2]}')
+      CUR_TEST_VAL=$(echo "${line}" | envsubst | awk '{gsub(/"/,""); split($0,a,"="); print a[2]}')
 
       PRINT_VAR=""
       if [ "${CUR_TEST_VAR}" = "HTTP_STATUS" ]; then
